@@ -2,8 +2,9 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# Load .env from the backend root directory
-load_dotenv()
+# Load .env from the backend root directory regardless of current working directory.
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 class Config:
     # ── Core ──────────────────────────────────────────────────
@@ -30,3 +31,10 @@ class Config:
     OTP_EXPIRY_MINUTES    = 5     # OTP valid for 5 minutes
     OTP_RESEND_COOLDOWN   = 60    # Seconds before resend is allowed
     OTP_MAX_ATTEMPTS      = 5     # Max wrong guesses before OTP is burned
+
+    # Comma-separated list of emails that should be provisioned as admins on registration.
+    ADMIN_EMAILS = [
+        e.strip().lower()
+        for e in os.environ.get('ADMIN_EMAILS', '').split(',')
+        if e.strip()
+    ]

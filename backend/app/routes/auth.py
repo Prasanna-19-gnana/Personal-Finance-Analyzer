@@ -225,12 +225,15 @@ def register_details():
     # Generate a username since it's required by the model
     username = _make_username_from_email(email)
 
+    role = 'admin' if email in current_app.config.get('ADMIN_EMAILS', []) else 'user'
+
     user = User(
         username=username,
         email=email,
         name=name,
         gender=gender,
         work=work,
+        role=role,
         is_verified=True
     )
     user.set_password(password)

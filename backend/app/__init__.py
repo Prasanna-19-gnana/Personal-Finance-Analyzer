@@ -48,15 +48,25 @@ def create_app(config_class=Config):
     from app.routes.transactions import bp as transactions_bp
     from app.routes.budgets      import bp as budgets_bp
     from app.routes.dashboard    import bp as dashboard_bp
+    from app.routes.admin        import bp as admin_bp
 
     # Per-route rate limits for OTP endpoints
     from app.routes.auth import send_otp, verify_otp
     limiter.limit("5 per minute")(send_otp)
     limiter.limit("10 per minute")(verify_otp)
 
+    # Register both legacy and versioned routes. Duplicate blueprint registrations
+    # must provide unique names in Flask.
     app.register_blueprint(auth_bp,         url_prefix='/api/auth')
     app.register_blueprint(transactions_bp, url_prefix='/api/transactions')
     app.register_blueprint(budgets_bp,      url_prefix='/api/budgets')
     app.register_blueprint(dashboard_bp,    url_prefix='/api/dashboard')
+    app.register_blueprint(admin_bp,        url_prefix='/api/admin')
+
+    app.register_blueprint(auth_bp,         url_prefix='/api/v1/auth',         name='auth_v1')
+    app.register_blueprint(transactions_bp, url_prefix='/api/v1/transactions', name='transactions_v1')
+    app.register_blueprint(budgets_bp,      url_prefix='/api/v1/budgets',      name='budgets_v1')
+    app.register_blueprint(dashboard_bp,    url_prefix='/api/v1/dashboard',    name='dashboard_v1')
+    app.register_blueprint(admin_bp,        url_prefix='/api/v1/admin',        name='admin_v1')
 
     return app

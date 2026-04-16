@@ -13,6 +13,7 @@ class User(db.Model):
     name       = db.Column(db.String(120), nullable=True)
     gender     = db.Column(db.String(20),  nullable=True)
     work       = db.Column(db.String(120), nullable=True)
+    role       = db.Column(db.String(20),  nullable=False, default='user', index=True)
     # password_hash kept for legacy compatibility; OTP-auth users won't have one
     password_hash = db.Column(db.String(256), nullable=True)
     is_verified   = db.Column(db.Boolean,  default=False)
@@ -36,6 +37,7 @@ class User(db.Model):
             'name':       self.name,
             'gender':     self.gender,
             'work':       self.work,
+            'role':       self.role,
             'created_at': self.created_at.isoformat(),
         }
 

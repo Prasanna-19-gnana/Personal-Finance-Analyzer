@@ -66,3 +66,35 @@ def delete_transaction(id):
     db.session.delete(t)
     db.session.commit()
     return jsonify({"msg": "Transaction deleted"}), 200
+
+
+@bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_transaction(id):
+    user_id = get_jwt_identity()
+    t = Transaction.query.filter_by(id=id, user_id=user_id).first()
+    if not t:
+        return jsonify({"msg": "Transaction not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+
+    if 'category_id' in data:
+        t.category_id = data.get('category_id')
+    if 'amount' in data:
+        t.amount = data.get('amount')
+    if 'type' in data:
+        t.type = data.get('type')
+    if 'description' in data:
+        t.description = data.get('description', '')
+
+    if 'date' in data and data.get('date'):
+        try:
+            t.date = datetime.strptime(data.get('date'), '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({"msg": "Invalid date format. Use YYYY-MM-DD."}), 400
+
+    if not t.amount or not t.type or not t.category_id:
+        return jsonify({"msg": "Missing required fields"}), 400
+
+    db.session.commit()
+    return jsonify({"msg": "Transaction updated"}), 200
